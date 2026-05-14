@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SHAMMAH & TRUTH | ARCHIVE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wine-deep: #1a0505;
+            --wine-mid: #2D0B0B;
+            --ivory: #FAF9F6;
+            --ivory-muted: rgba(250, 249, 246, 0.6);
+            --gold-soft: #C2A3A3;
+            --f-serif: 'Cormorant Garamond', Georgia, serif;
+            --f-sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --safe-padding: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--wine-deep);
+            color: var(--ivory);
+            font-family: var(--f-sans);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        #atmosphere {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, var(--wine-mid) 0%, var(--wine-deep) 100%);
+        }
+
+        #app {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Typography */
+        .meta-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            font-weight: 500;
+            color: var(--ivory-muted);
+        }
+
+        .main-title {
+            font-family: var(--f-serif);
+            font-size: clamp(1.8rem, 8vw, 3.2rem);
+            font-weight: 300;
+            line-height: 1.05;
+            margin: 20px 0;
+            letter-spacing: -0.01em;
+            color: var(--ivory);
+            max-width: 480px;
+        }
+
+        .main-title .amp {
+            font-size: 0.6em;
+            opacity: 0.5;
+            margin: 0 10px;
+            font-style: italic;
+            display: inline-block;
+            vertical-align: middle;
+            transform: translateY(-2px);
+        }
+
+        /* Hero */
+        .hero {
+            height: 65vh;
+            display: flex;
+            align-items: center;
+            padding: 0 var(--safe-padding);
+            position: relative;
+            z-index: 20;
+        }
+
+        .hero-glow {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(194, 163, 163, 0.05) 0%, transparent 70%);
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 100%;
+        }
+
+        .hero-content > * {
+            opacity: 0;
+            transform: translateY(15px);
+            animation: cinematicReveal 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .hero-content .meta-label { animation-delay: 0.3s; }
+        .hero-content .main-title { animation-delay: 0.6s; }
+        .hero-content .status-bar { animation-delay: 1s; }
+
+        @keyframes cinematicReveal {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 48px;
+        }
+
+        .status-dot {
+            width: 5px;
+            height: 5px;
+            background: #cc0000;
+            border-radius: 50%;
+            animation: pulse 3s infinite;
+        }
+
+        .status-text {
+            font-size: 10px;
+            font-weight: 400;
+            text-transform: lowercase;
+            letter-spacing: 0.05em;
+            color: var(--ivory-muted);
+            font-style: italic;
+            transition: opacity 0.8s ease;
+        }
+
+        /* Grid */
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 160px;
+            padding: 0 var(--safe-padding) 160px var(--safe-padding);
+            max-width: 1000px;
+            margin: -5vh auto 0; /* Reduced overlap */
+            position: relative;
+            z-index: 25;
+        }
+
+        /* Card */
+        .memory-card {
+            position: relative;
+            will-change: transform, opacity;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 2s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 2s cubic-bezier(0.16, 1, 0.3, 1),
+                        filter 1.5s ease;
+            filter: blur(10px) brightness(0.8);
+        }
+
+        .memory-card.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0px) brightness(1);
+        }
+
+        .memory-card.is-focused {
+            z-index: 50;
+        }
+
+        /* Paired Layouts */
+        .memory-pair {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .memory-pair > .memory-card {
+            width: calc(50% - 10px);
+            margin-top: 0 !important;
+        }
+
+        .memory-pair > .memory-card:nth-child(2) {
+            margin-top: 60px !important;
+        }
+
+        .card-inner {
+            position: relative;
+            overflow: hidden;
+            background: rgba(45, 11, 11, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(250, 249, 246, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(194, 163, 163, 0.02);
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .memory-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            mix-blend-mode: saturation;
+            filter: brightness(0.85) contrast(1.1);
+            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .memory-card.is-focused .card-inner {
+            border-color: rgba(250, 249, 246, 0.15);
+            box-shadow: 0 45px 90px rgba(0,0,0,0.6), 0 0 60px rgba(194, 163, 163, 0.05);
+        }
+
+        .memory-card.is-focused img {
+            mix-blend-mode: normal;
+            filter: brightness(1) contrast(1);
+            transform: scale(1.04);
+        }
+
+        .memory-card:hover .card-inner {
+            transform: translateY(-12px);
+            border-color: rgba(250, 249, 246, 0.25);
+            box-shadow: 0 50px 100px rgba(0,0,0,0.7), 0 0 70px rgba(194, 163, 163, 0.08);
+        }
+
+        .memory-card:hover img {
+            mix-blend-mode: normal;
+            filter: brightness(1) contrast(1);
+            transform: scale(1.08);
+        }
+
+        /* Memory Rails */
+        .rail-section {
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            padding: 40px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .rail-header {
+            padding: 0 var(--safe-padding) 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .rail-title {
+            font-family: var(--f-serif);
+            font-size: 1.8rem;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .rail-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .memory-rail {
+            display: flex;
+            gap: 30px;
+            overflow-x: auto;
+            padding: 0 var(--safe-padding) 60px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            cursor: grab;
+            scroll-behavior: smooth;
+        }
+
+        .memory-rail::-webkit-scrollbar {
+            display: none;
+        }
+
+        .memory-rail:active {
+            cursor: grabbing;
+        }
+
+        .rail-nav-hint {
+            position: absolute;
+            right: var(--safe-padding);
+            bottom: 40px;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            opacity: 0.6;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 30;
+        }
+
+        .rail-arrow {
+            width: 50px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--ivory));
+            position: relative;
+            animation: arrowDrift 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .rail-arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 6px;
+            height: 6px;
+            border-top: 1px solid var(--ivory);
+            border-right: 1px solid var(--ivory);
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+        @keyframes arrowDrift {
+            0%, 100% { transform: translateX(0); opacity: 0.3; }
+            50% { transform: translateX(12px); opacity: 0.7; }
+        }
+
+        .rail-item {
+            flex: 0 0 75vw; /* Slightly smaller to ensure next item is visible (peek) */
+            max-width: 420px;
+        }
+
+        .rail-item .card-inner {
+            aspect-ratio: 4/5;
+        }
+
+        .rail-item img {
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-meta {
+            margin-top: 20px;
+            padding: 0 8px;
+        }
+
+        .card-title {
+            font-family: var(--f-serif);
+            font-size: 1.25rem;
+            font-style: italic;
+            color: var(--gold-soft);
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        .card-location {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--ivory-muted);
+            font-weight: 500;
+        }
+
+        /* Staggered Rhythm Variations */
+        .card-portrait { width: 70%; }
+        .card-wide { width: 100%; }
+        .card-small { width: 50%; }
+
+        .align-right { align-self: flex-end; margin-right: 5%; }
+        .align-center { align-self: center; }
+        .align-left { align-self: flex-start; margin-left: 5%; }
+
+        /* Vertical Offsets */
+        .offset-v-sm { margin-top: -40px; }
+        .offset-v-md { margin-top: -80px; }
+        .offset-v-lg { margin-top: -120px; }
+
+        /* Footer */
+        .archive-footer {
+            padding: 120px var(--safe-padding) 80px;
+            text-align: center;
+            position: relative;
+            z-index: 20;
+            overflow: hidden;
+        }
+
+        .footer-glow {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 300px;
+            background: radial-gradient(circle at center 100%, rgba(45, 11, 11, 0.6) 0%, transparent 80%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-line {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--ivory), transparent);
+            opacity: 0.15;
+            margin-bottom: 40px;
+        }
+
+        .footer-meta {
+            font-size: 10px;
+            letter-spacing: 0.35em;
+            color: var(--ivory-muted);
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .footer-quote {
+            font-family: var(--f-serif);
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            font-style: italic;
+            color: var(--gold-soft);
+            opacity: 0.8;
+            line-height: 1.4;
+            margin-bottom: 60px;
+        }
+
+        .footer-signature {
+            border-top: 1px solid rgba(250, 249, 246, 0.05);
+            padding-top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sig-line {
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            color: var(--ivory-muted);
+            text-transform: uppercase;
+            opacity: 0.4;
+            font-weight: 400;
+        }
+
+        /* Ambient Layer */
+        .ambient-text {
+            position: fixed; /* Fixed so it stays in background */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--f-serif);
+            font-size: 25vw;
+            color: var(--ivory);
+            opacity: 0.02;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: -1;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.3); background: #cc0000; }
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 600px) {
+            .hero { 
+                height: 55vh; 
+                padding: 0 20px; 
+            }
+            .main-title { 
+                font-size: clamp(1.8rem, 9.5vw, 2.4rem); 
+                line-height: 1.25;
+                max-width: 280px; /* Force balanced wrap */
+            }
+            .memory-grid { 
+                gap: 120px; 
+                padding-bottom: 120px; 
+                margin-top: -3vh; /* Minimal overlap on mobile */
+            }
+            .card-portrait { width: 85%; }
+            .card-small { width: 75%; }
+            .memory-pair { flex-direction: column; gap: 80px; }
+            .memory-pair > .memory-card { width: 100%; }
+            .memory-pair > .memory-card:nth-child(2) { margin-top: 0 !important; }
+            .align-right { margin-right: 0; }
+            .align-left { margin-left: 0; }
+        }
+    </style>
+</head>
+<body class="archive-theme">
+    <canvas id="atmosphere"></canvas>
+    
+    <div id="app">
+        <div class="ambient-text">ENDLESSLY</div>
+        <header class="hero">
+            <div class="hero-glow"></div>
+            <div class="hero-content">
+                <p class="meta-label">A QUIET COLLECTION OF US</p>
+                <h1 class="main-title">SHAMMAH NYASHADZASHE <span class="amp">&</span> TRUTH JOHNSON</h1>
+                <div class="status-bar">
+                    <span class="status-dot"></span>
+                    <span class="status-text">some memories never leave</span>
+                </div>
+            </div>
+        </header>
+
+        <main id="memory-grid" class="memory-grid">
+            <!-- Cards injected by JS -->
+        </main>
+
+        <footer class="archive-footer">
+            <div class="footer-glow"></div>
+            <div class="footer-content">
+                <div class="footer-line"></div>
+                <p class="footer-meta">ARCHIVE // HARARE • 2026</p>
+                <p class="footer-quote">“Everything we were, is everything we are.”</p>
+                <div class="footer-signature">
+                    <p class="sig-line">Powered by WarStreet Experience Model</p>
+                    <p class="sig-line">Digital Memory Artifact Series</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const SECTIONS = [
+            {
+                type: 'hero-anchor',
+                item: { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/the-day-you-made-us-proud.jpg', title: 'The Day You Made Us Proud', meta: 'Milestone • 2026', cardType: 'wide', align: 'center', offset: '' }
+            },
+            {
+                type: 'rail',
+                title: 'Mirror Reflections',
+                items: [
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/mirror-memory-1.jpg', title: 'Glance I', meta: 'Studio Reflection' },
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/mirror-memory-2.jpg', title: 'Glance II', meta: 'Studio Reflection' },
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/mirror-memory-3.jpg', title: 'Glance III', meta: 'Studio Reflection' },
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/us-in-the-mirror.jpg', title: 'Between Reflections', meta: 'Harare' }
+                ]
+            },
+            {
+                type: 'composition',
+                items: [
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/holding-on-softly.jpg', title: 'Holding On', meta: 'Sanctuary', cardType: 'portrait', align: 'left', offset: '' },
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/fingers-laced-forever.jpg', title: 'Laced Forever', meta: 'Endless', cardType: 'small', align: 'right', offset: 'v-md' },
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/quiet-touch.jpg', title: 'Held Softly', meta: 'Intimate Archive', cardType: 'portrait', align: 'right', offset: '' },
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/promise-in-her-hands.jpg', title: 'Our Tomorrow', meta: 'The Vow', cardType: 'small', align: 'left', offset: 'v-sm' }
+                ]
+            },
+            {
+                type: 'portrait-break',
+                item: { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/her-soft-smile.jpg', title: 'Luminescence', meta: 'The Garden', cardType: 'portrait', align: 'center', offset: '' }
+            },
+            {
+                type: 'rail',
+                title: 'Relationship Motion',
+                items: [
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/leaning-into-love.jpg', title: 'Gravity', meta: 'Harare' },
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/stolen-memory.jpg', title: 'Living Energy', meta: 'Private Space' },
+                    { url: 'https://pub-e10a28ca38cf452da437555e0f90e288.r2.dev/warstreetmemories/shammah-mug-archive/IMG-20260513-WA0068.jpg', title: 'Lasting Impression', meta: 'Closing Cycle' }
+                ]
+            }
+        ];
+
+        class Atmosphere {
+            constructor() {
+                this.canvas = document.getElementById('atmosphere');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.particleCount = 25;
+                this.scrollY = 0;
+                this.resize();
+                this.createParticles();
+                this.animate();
+                window.addEventListener('resize', () => this.resize());
+                window.addEventListener('scroll', () => {
+                    this.scrollY = window.pageYOffset;
+                }, { passive: true });
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            createParticles() {
+                for (let i = 0; i < this.particleCount; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        size: Math.random() * 4 + 1,
+                        speedX: (Math.random() - 0.5) * 0.08,
+                        speedY: (Math.random() - 0.5) * 0.08,
+                        opacity: Math.random() * 0.25,
+                        parallaxFactor: 0.02 + Math.random() * 0.05
+                    });
+                }
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+
+                    if (p.x < 0) p.x = this.canvas.width;
+                    if (p.x > this.canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = this.canvas.height;
+                    if (p.y > this.canvas.height) p.y = 0;
+
+                    // Apply parallax to Y position
+                    let drawY = (p.y - (this.scrollY * p.parallaxFactor)) % this.canvas.height;
+                    if (drawY < 0) drawY += this.canvas.height;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, drawY, p.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(250, 249, 246, ${p.opacity})`;
+                    this.ctx.fill();
+                });
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        class MemoryArchive {
+            constructor() {
+                this.grid = document.getElementById('memory-grid');
+                this.cards = [];
+                this.init();
+                new Atmosphere();
+                this.animate();
+            }
+
+            createCardElement(img, isRail = false) {
+                const card = document.createElement('div');
+                card.className = isRail ? 'rail-item memory-card' : `memory-card card-${img.cardType} align-${img.align} ${img.offset}`;
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <img src="${img.url}" alt="${img.title}" loading="lazy">
+                    </div>
+                    <div class="card-meta">
+                        <h2 class="card-title">${img.title}</h2>
+                        <p class="card-location">${img.meta}</p>
+                    </div>
+                `;
+                return card;
+            }
+
+            init() {
+                SECTIONS.forEach((section) => {
+                    if (section.type === 'rail') {
+                        const railSect = document.createElement('section');
+                        railSect.className = 'rail-section';
+                        railSect.innerHTML = `
+                            <div class="rail-header">
+                                <h2 class="rail-title">${section.title}</h2>
+                                <p class="meta-label">view sequence</p>
+                            </div>
+                            <div class="rail-wrapper">
+                                <div class="memory-rail"></div>
+                                <div class="rail-nav-hint">
+                                    <div class="rail-arrow"></div>
+                                </div>
+                            </div>
+                        `;
+                        const rail = railSect.querySelector('.memory-rail');
+                        const hint = railSect.querySelector('.rail-nav-hint');
+                        
+                        section.items.forEach(img => {
+                            const card = this.createCardElement(img, true);
+                            rail.appendChild(card);
+                            this.cards.push(card);
+                            this.observeReveal(card);
+                        });
+                        this.grid.appendChild(railSect);
+                        this.initRailDrag(rail, hint);
+                    } else if (section.type === 'composition') {
+                        section.items.forEach(img => {
+                            const card = this.createCardElement(img);
+                            this.grid.appendChild(card);
+                            this.cards.push(card);
+                            this.observeReveal(card);
+                        });
+                    } else {
+                        const card = this.createCardElement(section.item);
+                        this.grid.appendChild(card);
+                        this.cards.push(card);
+                        this.observeReveal(card);
+                    }
+                });
+                this.initParallax();
+            }
+
+            initRailDrag(rail, hint) {
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+                let velocity = 0;
+                let lastX = 0;
+                let lastTime = 0;
+
+                const handleScroll = () => {
+                    if (rail.scrollLeft > 50) {
+                        hint.style.opacity = '0';
+                        hint.style.transform = 'translateX(20px)';
+                    } else {
+                        hint.style.opacity = '0.6';
+                        hint.style.transform = 'translateX(0)';
+                    }
+                };
+
+                rail.addEventListener('scroll', handleScroll, { passive: true });
+
+                rail.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    rail.classList.add('active');
+                    startX = e.pageX - rail.offsetLeft;
+                    scrollLeft = rail.scrollLeft;
+                    velocity = 0;
+                    lastX = e.pageX;
+                    lastTime = Date.now();
+                });
+
+                rail.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    rail.classList.remove('active');
+                    this.applyMomentum(rail, velocity);
+                });
+
+                rail.addEventListener('mouseup', () => {
+                   isDown = false;
+                   rail.classList.remove('active');
+                   this.applyMomentum(rail, velocity);
+                });
+
+                rail.addEventListener('mousemove', (e) => {
+                    if(!isDown) return;
+                    const x = e.pageX - rail.offsetLeft;
+                    const walk = (x - startX) * 1.5;
+                    rail.scrollLeft = scrollLeft - walk;
+
+                    const now = Date.now();
+                    const dt = now - lastTime;
+                    if (dt > 0) {
+                        velocity = (e.pageX - lastX) / dt;
+                    }
+                    lastX = e.pageX;
+                    lastTime = now;
+                });
+            }
+
+            applyMomentum(rail, vel) {
+                if (Math.abs(vel) < 0.2) return;
+                const decay = 0.95;
+                const step = () => {
+                    rail.scrollLeft -= vel * 16;
+                    vel *= decay;
+                    if (Math.abs(vel) > 0.1) {
+                        requestAnimationFrame(step);
+                    }
+                };
+                requestAnimationFrame(step);
+            }
+
+            observeReveal(el) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                observer.observe(el);
+            }
+
+            initParallax() {
+                const ambientText = document.querySelector('.ambient-text');
+                window.addEventListener('scroll', () => {
+                    const scroll = window.pageYOffset;
+                    const vh = window.innerHeight;
+                    
+                    if (ambientText) {
+                        ambientText.style.transform = `translate(-50%, calc(-50% + ${scroll * 0.1}px))`;
+                    }
+
+                    this.cards.forEach((card, i) => {
+                        const rect = card.getBoundingClientRect();
+                        const centerDiff = Math.abs((rect.top + rect.height/2) - vh/2);
+                        
+                        // Focus Logic
+                        if (centerDiff < vh * 0.3) {
+                            card.classList.add('is-focused');
+                        } else {
+                            card.classList.remove('is-focused');
+                        }
+
+                        // Parallax
+                        const speed = 0.02 + (i % 3) * 0.01;
+                        const offset = (vh / 2 - rect.top) * speed;
+                        card.style.setProperty('--parallax-offset', `${offset}px`);
+                    });
+                }, { passive: true });
+            }
+
+            animate() {
+                const time = Date.now() * 0.001;
+                this.cards.forEach((card, i) => {
+                    const seed = i * 1.5;
+                    const floatY = Math.sin(time + seed) * 4;
+                    const floatX = Math.cos(time * 0.7 + seed) * 2;
+                    const parallax = parseFloat(card.style.getPropertyValue('--parallax-offset')) || 0;
+                    
+                    card.style.transform = `translate(${floatX}px, ${parallax + floatY}px)`;
+                });
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new MemoryArchive();
+            
+            const statusText = document.querySelector('.status-text');
+            const phases = [
+                'some memories never leave',
+                'held softly between moments',
+                'for the days we wanted to keep',
+                'fragments of something beautiful'
+            ];
+            let phaseIdx = 0;
+            
+            setInterval(() => {
+                phaseIdx = (phaseIdx + 1) % phases.length;
+                statusText.style.opacity = '0';
+                setTimeout(() => {
+                    statusText.innerText = phases[phaseIdx];
+                    statusText.style.opacity = '1';
+                }, 500);
+            }, 4000);
+        });
+    </script>
+</body>
+</html>
