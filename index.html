@@ -9,11 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --wine-deep: #1a0505;
-            --wine-mid: #2D0B0B;
-            --ivory: #FAF9F6;
-            --ivory-muted: rgba(250, 249, 246, 0.6);
-            --gold-soft: #C2A3A3;
+            --rose-bg: #f6d7df;
+            --rose-mid: #e8b7c7;
+            --rose-deep: #c9869d;
+            --rose-dark: #8f5f73;
+            --ivory: #4a2d34;
+            --ivory-muted: rgba(74, 45, 52, 0.6);
+            --gold-soft: #8f5f73;
+            --rose-glow: rgba(201, 134, 157, 0.15);
             --f-serif: 'Cormorant Garamond', Georgia, serif;
             --f-sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             --safe-padding: 24px;
@@ -27,7 +30,7 @@
         }
 
         body {
-            background-color: var(--wine-deep);
+            background-color: var(--rose-bg);
             color: var(--ivory);
             font-family: var(--f-sans);
             overflow-x: hidden;
@@ -42,7 +45,7 @@
             height: 100vh;
             z-index: 0;
             pointer-events: none;
-            background: radial-gradient(circle at 50% 50%, var(--wine-mid) 0%, var(--wine-deep) 100%);
+            background: linear-gradient(135deg, var(--rose-bg) 0%, var(--rose-mid) 50%, var(--rose-deep) 100%);
         }
 
         #app {
@@ -97,7 +100,7 @@
             transform: translate(-50%, -50%);
             width: 90vw;
             height: 60vh;
-            background: radial-gradient(circle, rgba(194, 163, 163, 0.05) 0%, transparent 70%);
+            background: radial-gradient(circle, var(--rose-glow) 0%, transparent 70%);
             filter: blur(80px);
             pointer-events: none;
             z-index: -1;
@@ -131,7 +134,7 @@
         .status-dot {
             width: 5px;
             height: 5px;
-            background: #cc0000;
+            background: #c9869d;
             border-radius: 50%;
             animation: pulse 3s infinite;
         }
@@ -170,6 +173,33 @@
             filter: blur(10px) brightness(0.8);
         }
 
+        /* Cinematic Glow / Bloom */
+        .memory-card::before {
+            content: '';
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            width: 90%;
+            height: 90%;
+            background: radial-gradient(circle, var(--rose-deep) 0%, transparent 75%);
+            filter: blur(60px);
+            opacity: 0;
+            z-index: -1;
+            pointer-events: none;
+            transition: opacity 2s cubic-bezier(0.16, 1, 0.3, 1), transform 2s ease;
+            will-change: opacity, transform;
+        }
+
+        .memory-card.is-visible::before {
+            opacity: 0.4;
+        }
+
+        .memory-card.is-focused::before {
+            opacity: 0.7;
+            transform: scale(1.15);
+            background: radial-gradient(circle, var(--rose-mid) 0%, transparent 70%);
+        }
+
         .memory-card.is-visible {
             opacity: 1;
             transform: translateY(0);
@@ -201,46 +231,100 @@
         .card-inner {
             position: relative;
             overflow: hidden;
-            background: rgba(45, 11, 11, 0.4);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(250, 249, 246, 0.08);
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             border-radius: 16px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(194, 163, 163, 0.02);
+            box-shadow: 
+                0 20px 40px rgba(74, 45, 52, 0.08),
+                0 40px 80px rgba(74, 45, 52, 0.1),
+                0 0 50px rgba(232, 190, 181, 0.05);
             transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
                         box-shadow 1.2s cubic-bezier(0.16, 1, 0.3, 1),
                         border-color 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Glass Edge Highlight */
+        .card-inner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.1) 100%);
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.5;
         }
 
         .memory-card img {
             width: 100%;
             height: auto;
             display: block;
-            mix-blend-mode: saturation;
-            filter: brightness(0.85) contrast(1.1);
+            mix-blend-mode: multiply;
+            filter: brightness(1.05) contrast(0.95) saturate(1.1);
             transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .memory-card.is-focused .card-inner {
-            border-color: rgba(250, 249, 246, 0.15);
-            box-shadow: 0 45px 90px rgba(0,0,0,0.6), 0 0 60px rgba(194, 163, 163, 0.05);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 
+                0 30px 60px rgba(74, 45, 52, 0.15),
+                0 60px 120px rgba(74, 45, 52, 0.15),
+                0 0 80px rgba(232, 190, 181, 0.25);
         }
 
         .memory-card.is-focused img {
             mix-blend-mode: normal;
-            filter: brightness(1) contrast(1);
+            filter: brightness(1) contrast(1) saturate(1);
             transform: scale(1.04);
         }
 
         .memory-card:hover .card-inner {
             transform: translateY(-12px);
-            border-color: rgba(250, 249, 246, 0.25);
-            box-shadow: 0 50px 100px rgba(0,0,0,0.7), 0 0 70px rgba(194, 163, 163, 0.08);
+            border-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 40px 80px rgba(74, 45, 52, 0.2),
+                0 80px 160px rgba(74, 45, 52, 0.2),
+                0 0 100px rgba(232, 190, 181, 0.4);
         }
 
         .memory-card:hover img {
             mix-blend-mode: normal;
             filter: brightness(1) contrast(1);
             transform: scale(1.08);
+        }
+
+        /* Cinematic Card Particles */
+        .card-particles {
+            position: absolute;
+            inset: -40px;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        .memory-card.is-visible .card-particles {
+            opacity: 1;
+        }
+
+        .p-dot {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--rose-deep);
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: cardParticleFloat 10s infinite ease-in-out;
+        }
+
+        .p-dot:nth-child(1) { top: 20%; left: 10%; animation-duration: 12s; }
+        .p-dot:nth-child(2) { top: 80%; left: 90%; animation-duration: 15s; animation-delay: -3s; }
+        .p-dot:nth-child(3) { top: 50%; left: 5%; animation-duration: 11s; animation-delay: -7s; }
+
+        @keyframes cardParticleFloat {
+            0%, 100% { transform: translate(0, 0); opacity: 0.1; }
+            50% { transform: translate(20px, -30px); opacity: 0.4; }
         }
 
         /* Memory Rails */
@@ -393,7 +477,7 @@
             transform: translateX(-50%);
             width: 100%;
             height: 300px;
-            background: radial-gradient(circle at center 100%, rgba(45, 11, 11, 0.6) 0%, transparent 80%);
+            background: radial-gradient(circle at center 100%, var(--rose-mid) 0%, transparent 80%);
             pointer-events: none;
             z-index: -1;
         }
@@ -430,7 +514,7 @@
         }
 
         .footer-signature {
-            border-top: 1px solid rgba(250, 249, 246, 0.05);
+            border-top: 1px solid rgba(74, 45, 52, 0.1);
             padding-top: 40px;
             display: flex;
             flex-direction: column;
@@ -468,7 +552,7 @@
 
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.3); background: #cc0000; }
+            50% { opacity: 0.4; transform: scale(1.3); background: #c9869d; }
         }
 
         /* Mobile Optimizations */
@@ -598,11 +682,11 @@
                     this.particles.push({
                         x: Math.random() * this.canvas.width,
                         y: Math.random() * this.canvas.height,
-                        size: Math.random() * 4 + 1,
-                        speedX: (Math.random() - 0.5) * 0.08,
-                        speedY: (Math.random() - 0.5) * 0.08,
-                        opacity: Math.random() * 0.25,
-                        parallaxFactor: 0.02 + Math.random() * 0.05
+                        size: Math.random() * 3 + 0.5,
+                        speedX: (Math.random() - 0.5) * 0.05,
+                        speedY: (Math.random() - 0.5) * 0.05,
+                        opacity: Math.random() * 0.15,
+                        parallaxFactor: 0.01 + Math.random() * 0.03
                     });
                 }
             }
@@ -624,7 +708,7 @@
 
                     this.ctx.beginPath();
                     this.ctx.arc(p.x, drawY, p.size, 0, Math.PI * 2);
-                    this.ctx.fillStyle = `rgba(250, 249, 246, ${p.opacity})`;
+                    this.ctx.fillStyle = `rgba(201, 134, 157, ${p.opacity})`;
                     this.ctx.fill();
                 });
                 requestAnimationFrame(() => this.animate());
@@ -644,6 +728,11 @@
                 const card = document.createElement('div');
                 card.className = isRail ? 'rail-item memory-card' : `memory-card card-${img.cardType} align-${img.align} ${img.offset}`;
                 card.innerHTML = `
+                    <div class="card-particles">
+                        <span class="p-dot"></span>
+                        <span class="p-dot"></span>
+                        <span class="p-dot"></span>
+                    </div>
                     <div class="card-inner">
                         <img src="${img.url}" alt="${img.title}" loading="lazy">
                     </div>
